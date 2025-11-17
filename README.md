@@ -106,7 +106,7 @@ make deps
 
 ```yaml
 host: "localhost"
-port: 8181
+port: 8080
 
 database_url: ""
 
