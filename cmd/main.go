@@ -15,13 +15,10 @@ import (
 )
 
 func main() {
-	cfg, err := config.LoadConfig("config.yaml")
+	cfg, err := config.LoadConfig()
 	if err != nil {
-		cfg, err = config.LoadConfig("")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to load config: %v\n", err)
-			os.Exit(1)
-		}
+		fmt.Fprintf(os.Stderr, "Failed to load config: %v\n", err)
+		os.Exit(1)
 	}
 
 	stdLogger := logger.NewStdLogger()

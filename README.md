@@ -102,27 +102,30 @@ make deps
 
 ## ⚙️ Конфигурация
 
-Конфигурация хранится в файле `config.yaml`:
+Конфигурация задаётся исключительно переменными окружения. Для удобства в репозитории есть файл `env.example`. Скопируйте его и при необходимости измените значения:
 
-```yaml
-host: "localhost"
-port: 8080
+```bash
+cp env.example .env
+```
 
-database_url: ""
+Пример содержимого `.env`:
 
-db_host: "localhost"
-db_port: 5432
-db_user: "myuser"
-db_password: "mypassword"
-db_name: "mydatabase"
-db_sslmode: "disable"
-
-test_db_name: "test_mydatabase"
+```
+HOST=0.0.0.0
+PORT=8080
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=myuser
+DB_PASSWORD=mypassword
+DB_NAME=mydatabase
+DB_SSLMODE=disable
+DATABASE_URL=
+TEST_DB_NAME=test_mydatabase
 ```
 
 ### Переменные окружения
 
-Все параметры можно переопределить через переменные окружения:
+Все параметры можно переопределить через переменные окружения (либо через `.env`, либо напрямую):
 
 - `HOST` - Хост сервера (по умолчанию: `0.0.0.0`)
 - `PORT` - Порт сервера (по умолчанию: `8080`)
@@ -453,7 +456,7 @@ avito-autumn-2025/
 ├── tests/                      # Тесты
 │   ├── e2e/                    # E2E тесты
 │   └── integration/            # Интеграционные тесты
-├── config.yaml                 # Конфигурация
+├── env.example                 # Пример переменных окружения
 ├── docker-compose.yml          # Docker Compose конфигурация
 ├── Dockerfile                  # Docker образ
 ├── Makefile                    # Make команды

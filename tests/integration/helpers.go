@@ -12,9 +12,9 @@ import (
 )
 
 func SetupTestDB(t *testing.T) (*pgxpool.Pool, func()) {
-	cfg, err := config.LoadConfig("../../config.yaml")
+	cfg, err := config.LoadConfig()
 	if err != nil {
-		cfg, _ = config.LoadConfig("")
+		t.Fatalf("failed to load config: %v", err)
 	}
 
 	databaseURL := cfg.BuildTestDatabaseURL()

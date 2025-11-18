@@ -21,9 +21,9 @@ var testServer *server.Server
 var testDB *pgxpool.Pool
 
 func SetupE2ETest(t *testing.T) {
-	cfg, err := config.LoadConfig("../../config.yaml")
+	cfg, err := config.LoadConfig()
 	if err != nil {
-		cfg, _ = config.LoadConfig("")
+		t.Fatalf("failed to load config: %v", err)
 	}
 
 	databaseURL := cfg.BuildTestDatabaseURL()

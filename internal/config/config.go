@@ -1,24 +1,27 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Host        string `env:"HOST" yaml:"host" env-default:"0.0.0.0"`
-	Port        int    `env:"PORT" yaml:"port" env-default:"8080"`
-	DatabaseURL string `env:"DATABASE_URL" yaml:"database_url"`
+	Host        string `env:"HOST" env-default:"0.0.0.0"`
+	Port        int    `env:"PORT" env-default:"8080"`
+	DatabaseURL string `env:"DATABASE_URL"`
 
-	DBHost     string `env:"DB_HOST" yaml:"db_host" env-default:"localhost"`
-	DBPort     int    `env:"DB_PORT" yaml:"db_port" env-default:"5432"`
-	DBUser     string `env:"DB_USER" yaml:"db_user" env-default:"myuser"`
-	DBPassword string `env:"DB_PASSWORD" yaml:"db_password" env-default:"mypassword"`
-	DBName     string `env:"DB_NAME" yaml:"db_name" env-default:"mydatabase"`
-	DBSSLMode  string `env:"DB_SSLMODE" yaml:"db_sslmode" env-default:"disable"`
+	DBHost     string `env:"DB_HOST" env-default:"localhost"`
+	DBPort     int    `env:"DB_PORT" env-default:"5432"`
+	DBUser     string `env:"DB_USER" env-default:"myuser"`
+	DBPassword string `env:"DB_PASSWORD" env-default:"mypassword"`
+	DBName     string `env:"DB_NAME" env-default:"mydatabase"`
+	DBSSLMode  string `env:"DB_SSLMODE" env-default:"disable"`
 
-	TestDBName string `env:"TEST_DB_NAME" yaml:"test_db_name" env-default:"test_mydatabase"`
+	TestDBName string `env:"TEST_DB_NAME" env-default:"test_mydatabase"`
 }
 
 func (c *Config) BuildDatabaseURL() string {
@@ -39,12 +42,30 @@ func (c *Config) BuildAdminDatabaseURL() string {
 		c.DBUser, c.DBPassword, c.DBHost, c.DBPort, c.DBSSLMode)
 }
 
-func LoadConfig(path string) (*Config, error) {
-	cfg := &Config{}
-	if err := cleanenv.ReadConfig(path, cfg); err != nil {
-		if err := cleanenv.ReadEnv(cfg); err != nil {
-			return nil, fmt.Errorf("cannot read config: %w", err)
+func LoadConfig(envFiles ...string) (*Config, error) {
+	paths := make([]string, 0, len(envFiles))
+	for _, path := range envFiles {
+		if path != "" {
+			paths = append(paths, path)
 		}
+	}
+	if len(paths) == 0 {
+		paths = append(paths, ".env")
+	}
+
+	for _, path := range paths {
+		if err := godotenv.Overload(path); err != nil {
+			var pathErr *os.PathError
+			if errors.As(err, &pathErr) && errors.Is(pathErr, os.ErrNotExist) {
+				continue
+			}
+			return nil, fmt.Errorf("cannot load env file %s: %w", path, err)
+		}
+	}
+
+	cfg := &Config{}
+	if err := cleanenv.ReadEnv(cfg); err != nil {
+		return nil, fmt.Errorf("cannot read env config: %w", err)
 	}
 	if cfg.DatabaseURL == "" {
 		cfg.DatabaseURL = cfg.BuildDatabaseURL()
